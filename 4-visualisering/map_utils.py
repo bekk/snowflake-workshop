@@ -13,6 +13,7 @@ def style_function(feature: dict):
     return { 'fillColor': color, 'color': "#0000ff40", 'weight': 4, 'fillOpacity': 0.5 }
 
 def generate_map(df: pd.DataFrame) -> folium.Map:
+    # Denne funksjonen forventer en Dataframe med kolonnene KOMMUNENAVN, KOMMUNENUMMER, GJENNOMSNITTLIG_KARAKTER, GEOMETRY (Som GeoJSON)
     punkt_for_norge = [62.6252978589571, 10.34580993652344]
     m = folium.Map(location=punkt_for_norge, zoom_start=6)
 
