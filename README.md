@@ -6,7 +6,7 @@ Velkommen til Snowflake-workshop! De neste to timene skal vi bryne oss på innhe
 
 Logg inn på [Snowflake](https://ae44471.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
 
-### Oppgave 1: Lag database og skjema 
+### Oppgave 1.1: Lag database og skjema 
 Det første du må gjøre er å lage en egen database og skjema (datasett) på formatet `ditt_navn`_database/schema slik som i kodesnutten under. Bytt med ditt eget navn og kjør cellene i Snowflake. 
 
 ```sql
@@ -25,7 +25,7 @@ Det er slitsomt å måtte spesifisere hele stien hver gang vi oppretter en tabel
 
 Nok snikksnakk, la oss hente data fra GCP!
 
-### Oppgave 2: Last inn data fra GCS-bøtte 🪣
+### Oppgave 1.2: Last inn data fra GCS-bøtte 🪣
 
 Nå skal vi hente data fra `snowflake-ws-raw-data`-bøtta som ligger i [GCP](https://console.cloud.google.com/storage/browser?project=snowflake-workshop&prefix=&forceOnBucketsSortingFiltering=true). For å gjøre dette er vi nødt til å opprette en konfigurasjonsenhet som brukes for å integrere Snowflake med eksterne lagringstjenester (som Google Cloud Storage). Denne enheten kalles for `storage integration object` og oppretter blant annet en egen service account (maskinbruker) som vi kan gi tilgang til i bøtta vår. Kodesnutten under sier at vi ønsker å lage et eksternt volum i GCS som har tilgang til en gitt sti.
 
@@ -49,7 +49,7 @@ Kopier navnet på `STORAGE_GCP_SERVICE_ACCOUNT`, naviger deg til [**Permissions*
 
 Så lett var det - nå har vi muligheten til å autentisere oss mot bøtta og hente ut dataen 🚀
 
-### Oppgave 3: Lag mellomledd for kildedata og datavarehus
+### Oppgave 1.3: Lag mellomledd for kildedata og datavarehus
 
 Det siste vi trenger å lage for å hente data er et `stage object`. Dette er et område som brukes til midlertidig lagring av rådatafiler før de lastes inn i Snowflake-databaser. Det fungerer som et mellomledd mellom kildedataene og datavarehuset vårt. For å hente dataen må vi ta i bruk `storage integration`-objektet vi nettopp lagde ved å kopiere og kjøre kodesnutten under:
 
@@ -64,7 +64,7 @@ Verifiser at dette funket ved å kjøre `list @gcp_data;`. Får du opp fire file
 
 ## DEL 2: Hent CSV-data for tilsyn og postnummer 📫
 
-### Oppgave 1: Kopier data fra stage til tabell
+### Oppgave 2.1: Kopier data fra stage til tabell
 Nå skal vi gjøre oss klare for å laste inn data. Først er vi nødt til å lage et fil-format som matcher CSV-formatet. Hvis vi åpner `postnummer.csv` og `tilsyn.csv` i bøtta vår ser vi at vi har én header med semikolon-separerte verdier. Dette må vi ta høyde for, slik som i kodesnutten under:
 
 ```sql
@@ -117,7 +117,7 @@ on_error=continue;
 
 Kjør en spørring på tabellen for å sjekke at dataen er korrekt lastet inn. 
 
-### Oppgave 3: Transformer tilsynstabellen
+### Oppgave 2.2: Transformer tilsynstabellen
 
 Det er et par ting med den opprinnelige rådataen som ikke passer vårt formål. Lag derfor en spørring og skriv den til en ny tabell, `tilsyn_transformert`, som inneholder følgende:
 1. `navn, orgnummer, postnr, poststed, totalkarakter`-kolonnene på vanlig format
@@ -148,7 +148,7 @@ Det er et par ting med den opprinnelige rådataen som ikke passer vårt formål.
 Kjør en spørring som verifiserer at dataen ser korrekt ut
 
 
-### Oppgave 4: Hent inn postnummer-data
+### Oppgave 2.3: Hent inn postnummer-data
 
 I neste del av workshopen skal vi få inn geodata for kommuner. Problemet vårt er at det eneste vi har å gå på i tilsynstabellen er `postnr`, mens kommune-dataen vår bare har info om kommunenavn og kommunenummer. Heldigvis har vi en fil i GCS, `postnummer`, som kan hjelpe oss med å knytte de to tabellene sammen!
 
@@ -185,7 +185,7 @@ on_error=continue;
 
 CSV-filene vi har jobbet med hittil har vært enkel, tabulær data. Men hvordan håndterer man semi-strukturert data som JSON?
 
-### Oppgave 1: Last opp data fra stage til kommuner-tabell
+### Oppgave 3.1: Last opp data fra stage til kommuner-tabell
 
 Som i tidligere oppgaver må vi starte med å initiere tabellen vår. I kodesnutten under lager vi tabellen `kommuner` med all data i én kolonne av typen `VARIANT`. Det er en fleksibel datatype som kan holde en hvilken som helst type av semi-strukturerte data som JSON, Avro, XML eller lignende. Kjør kodesnutten under:
 
@@ -205,7 +205,7 @@ file_format = (type = JSON);
 
 Ta en titt på tabellen vi nå har opprettet. Her er vi nødt til å nøste opp i et par ting 🧹
 
-### Oppgave 2: Pakk ut JSON-data
+### Oppgave 3.2: Pakk ut JSON-data
 
 La oss starte med å pakke ut dataen slik at vi får én kommune per rad. Vi bruker en noe mystisk funksjon, LATERAL FLATTEN, for å pakke ut features-objektet. Det er den mest effektive måte å pakke ut nøstede arrays i en JSON-kolonne, slik vi har her:
 
@@ -268,7 +268,7 @@ Ta en titt på dataen nå. Nå har vi egentlig all data vi trenger til å plotte
 
 ## DEL 4: Grupper data på kommuner og plott resultatet 📊
 
-### Oppgave 1: Karaktersnitt per kommune
+### Oppgave 4.1: Karaktersnitt per kommune
 
 Tabellen vår `tilsyn_med_kommune` har nå én rad per tilsyn. Det vi nå trenger å gjøre er å gruppere dataen slik at vi har en gjennomsnittskarakter på hver kommune. Lag en spørring som tar med `kommunenavn, kommunenummer, geometry`, og gjennomsnittskarakteren av `total_karakter` (avrundet med tre desimaler). 
 
@@ -291,4 +291,19 @@ CREATE TABLE tilsynskarakter_per_kommune as
 Kjør en `SELECT` på den nye tabellen din og naviger deg til høyre kolonne i resultatet. Scroller du nedover finner du mer detaljert info om `gjennomsnittlig_karakter`-kolonnen, som gjennomsnittlig karakter for alle kommuner, distribusjonen av karakterer og prosentvis null-verdier. Vi ser at kolonneverdiene er relativt normaldistribuert, så her blir det kult å plotte!  
 
 
-### Oppgave 2: Plott tilsynskarakter per kommune
+### Oppgave 4.2: Plott tilsynskarakter per kommune
+-- Jonas forklarer litt om koden som er satt opp (Snowflake har egen connector etc.)
+
+For å komme deg videre må du installere avhengighetene som trengs for å konsumere data fra Snowflake og visualisere dem ved bruk av Folium. Dette gjør du ved å navigere deg inn i `/visualisering` og kjøre
+```sh
+pip install -r requirements.txt
+```
+Etter å ha installert avhengighetene må du sette inn de nødvendige parameterene i main.py. Finn frem brukernavnet, passordet, database- og skjema-navnet. Fyll disse inn i `connector.connect`-funksjonen.
+
+Åpne opp terminalen og naviger til denne mappen. Kjør så
+
+```sh
+python main.py
+```
+
+Etter kommandoen er ferdigkjørt vil det bli laget en map.html. Åpne opp filen i en nettleser og du vil se dataene dine plottet på et kart.
