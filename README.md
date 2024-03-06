@@ -270,7 +270,7 @@ Ta en titt på dataen nå. Nå har vi egentlig all data vi trenger til å plotte
 
 ### Oppgave 4.1: Karaktersnitt per kommune
 
-Tabellen vår `tilsyn_med_kommune` har nå én rad per tilsyn. Det vi nå trenger å gjøre er å gruppere dataen slik at vi har en gjennomsnittskarakter på hver kommune. Lag en spørring som tar med `kommunenavn, kommunenummer, geometry`, og gjennomsnittskarakteren av `total_karakter` (avrundet med tre desimaler). 
+Tabellen vår `tilsyn_med_kommune` har nå én rad per tilsyn. Det vi nå trenger å gjøre er å gruppere dataen slik at vi har en gjennomsnittskarakter på hver kommune. Lag en spørring som tar med `kommunenavn, kommunenummer, geometry`, og gjennomsnittskarakteren av `total_karakter` (avrundet med tre desimaler). Kall den nye tabellen `tilsynskarakter_per_kommune`. 
 
 <details>
   <summary>🚨 Løsningsforslag</summary>
