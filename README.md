@@ -291,19 +291,24 @@ CREATE TABLE tilsynskarakter_per_kommune as
 Kjør en `SELECT` på den nye tabellen din og naviger deg til høyre kolonne i resultatet. Scroller du nedover finner du mer detaljert info om `gjennomsnittlig_karakter`-kolonnen, som gjennomsnittlig karakter for alle kommuner, distribusjonen av karakterer og prosentvis null-verdier. Vi ser at kolonneverdiene er relativt normaldistribuert, så her blir det kult å plotte!  
 
 
-### Oppgave 4.2: Plott tilsynskarakter per kommune
--- Jonas forklarer litt om koden som er satt opp (Snowflake har egen connector etc.)
+### Oppgave 4.2: Plott tilsynskarakter per kommune 
+Nå skal vi ta i bruk dataene vi har laget via en snowflake-connector. En connector lar deg koble til Snowflake utenfor plattformen via f.eks en Python-applikasjon. Vi har allerede laget et Python-script for å visualisere dataene i `tilsynskarakter_per_kommune`-tabellen. Scriptet konverterer geometrikolonnen tilbake til GeoJSON fra binærformat. Dette må til for å kunne visualisere dataene i rammeverket `Folium`. 
 
-For å komme deg videre må du installere avhengighetene som trengs for å konsumere data fra Snowflake og visualisere dem ved bruk av Folium. Dette gjør du ved å navigere deg inn i `/visualisering` og kjøre
+For å kunne kjøre scriptet må du først klone repoet
+```sh
+git clone git@github.com:bekk/snowflake-workshop.git
+```
+
+Deretter må du installere avhengighetene som trengs. Dette gjør du ved å navigere deg inn i `/visualisering` og kjøre
 ```sh
 pip install -r requirements.txt
 ```
 Etter å ha installert avhengighetene må du sette inn de nødvendige parameterene i main.py. Finn frem brukernavnet, passordet, database- og skjema-navnet. Fyll disse inn i `connector.connect`-funksjonen.
 
-Åpne opp terminalen og naviger til denne mappen. Kjør så
+Når parametererne er ferdig utfylt kjører du følgende kommando i `/visualisering`-mappen
 
 ```sh
 python main.py
 ```
 
-Etter kommandoen er ferdigkjørt vil det bli laget en map.html. Åpne opp filen i en nettleser og du vil se dataene dine plottet på et kart.
+Etter kommandoen er ferdigkjørt vil det bli laget en fil `map.html`. Åpne opp filen i en nettleser og du vil se dataene dine plottet på et kart.
