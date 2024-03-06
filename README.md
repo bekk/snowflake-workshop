@@ -2,7 +2,7 @@
 
 Velkommen til Snowflake-workshop! De neste to timene skal vi bryne oss på innhenting, transformering og plotting av [tilsynsdata](https://hotell.difi.no/?dataset=mattilsynet/smilefjes/tilsyn) fra Digitaliseringsdirektoratet. Dette er en vurdering av over 3500 restauranter i Norge på parametre som lokaler, mathåndtering, merking og lignende. Vårt mål er å ta i bruk geodata fra Kartverket for å visualisere hvilke kommuner i Norge som ikke har restaurantene sine helt på stell 😀 🤔 😩
 
-## DEL 1: Kobling mot Google Cloud Storage
+## DEL 1: Kobling mot Google Cloud Storage 💾
 
 Logg inn på [Snowflake](https://ae44471.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
 
@@ -25,7 +25,7 @@ Det er slitsomt å måtte spesifisere hele stien hver gang vi oppretter en tabel
 
 Nok snikksnakk, la oss hente data fra GCP!
 
-### Oppgave 2: Last inn data fra GCS-bøtte
+### Oppgave 2: Last inn data fra GCS-bøtte 🪣
 
 Nå skal vi hente data fra `snowflake-ws-raw-data`-bøtta som ligger i [GCP](https://console.cloud.google.com/storage/browser?project=snowflake-workshop&prefix=&forceOnBucketsSortingFiltering=true). For å gjøre dette er vi nødt til å opprette en konfigurasjonsenhet som brukes for å integrere Snowflake med eksterne lagringstjenester (som Google Cloud Storage). Denne enheten kalles for `storage integration object` og oppretter blant annet en egen service account (maskinbruker) som vi kan gi tilgang til i bøtta vår. Kodesnutten under sier at vi ønsker å lage et eksternt volum i GCS som har tilgang til en gitt sti.
 
@@ -62,7 +62,7 @@ CREATE STAGE gcp_data
 Verifiser at dette funket ved å kjøre `list @gcp_data;`. Får du opp fire filer, er vi _endelig_ klare til å kopiere data inn i Snowflake. 
 
 
-## DEL 2: Hent CSV-data for tilsyn og postnummer 
+## DEL 2: Hent CSV-data for tilsyn og postnummer 📫
 
 ### Oppgave 1: Kopier data fra stage til tabell
 Nå skal vi gjøre oss klare for å laste inn data. Først er vi nødt til å lage et fil-format som matcher CSV-formatet. Hvis vi åpner `postnummer.csv` og `tilsyn.csv` i bøtta vår ser vi at vi har én header med semikolon-separerte verdier. Dette må vi ta høyde for, slik som i kodesnutten under:
@@ -181,7 +181,7 @@ on_error=continue;
 </details>
 
 
-## DEL 3: Hent og transformer JSON-data for kommuner  
+## DEL 3: Hent og transformer JSON-data for kommuner 🗺️
 
 CSV-filene vi har jobbet med hittil har vært enkel, tabulær data. Men hvordan håndterer man semi-strukturert data som JSON?
 
@@ -264,9 +264,9 @@ CREATE TABLE tilsyn_med_kommune as (
 );
 ```
 
-Ta en titt på dataen nå. Nå har vi egentlig all data vi trenger til å plotte 📊
+Ta en titt på dataen nå. Nå har vi egentlig all data vi trenger til å plotte tilgjengelig!
 
-## DEL 4: Grupper data på kommuner og plott resultatet 
+## DEL 4: Grupper data på kommuner og plott resultatet 📊
 
 ### Oppgave 1: Karaktersnitt per kommune
 
