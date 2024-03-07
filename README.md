@@ -29,10 +29,10 @@ Nok snikksnakk, la oss hente data fra GCP!
 
 Nå skal vi hente data fra `snowflake-ws-raw-data`-bøtta som ligger i [GCP](https://console.cloud.google.com/storage/browser?project=snowflake-workshop&prefix=&forceOnBucketsSortingFiltering=true). For å gjøre dette er vi nødt til å opprette en konfigurasjonsenhet som brukes for å integrere Snowflake med eksterne lagringstjenester (som Google Cloud Storage). Denne enheten kalles for `storage integration object` og oppretter blant annet en egen service account (maskinbruker) som vi kan gi tilgang til i bøtta vår. Kodesnutten under sier at vi ønsker å lage et eksternt volum i GCS som har tilgang til en gitt sti.
 
-Kopier og kjør den i fila di:
+Bytt ut `<ditt_navn>` med ditt navn (💡) og kjør den i fila di:
 
 ```sql
-CREATE STORAGE INTEGRATION gcp_integration
+CREATE STORAGE INTEGRATION <ditt_navn>_gcp_integration
     type = external_stage
     storage_provider = GCS 
     enabled = true 
@@ -42,7 +42,7 @@ CREATE STORAGE INTEGRATION gcp_integration
 Nå kan vi hente ut den genererte maskinbrukeren ved å kjøre:
 
 ```sql
-DESC STORAGE INTEGRATION gcp_integration;
+DESC STORAGE INTEGRATION <ditt_navn>_gcp_integration;
 ```
 
 Kopier navnet på `STORAGE_GCP_SERVICE_ACCOUNT`, naviger deg til [**Permissions**](https://console.cloud.google.com/storage/browser/snowflake-ws-raw-data;tab=permissions?forceOnBucketsSortingFiltering=true&project=snowflake-workshop&prefix=&forceOnObjectsSortingFiltering=false)-fanen i bøtta og gi maskinbrukeren rettigheten `Storage Admin`.
@@ -55,7 +55,7 @@ Det siste vi trenger å lage for å hente data er et `stage object`. Dette er et
 
 ```sql
 CREATE STAGE gcp_data
-    storage_integration = gcp_integration
+    storage_integration = <ditt_navn>_gcp_integration
     url = 'gcs://snowflake-ws-raw-data/';
 ```
 
