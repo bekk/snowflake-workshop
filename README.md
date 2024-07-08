@@ -128,6 +128,7 @@ Det er et par ting med den opprinnelige rådataen som ikke passer vårt formål.
 1. `navn, orgnummer, postnr, poststed, total_karakter`-kolonnene på vanlig format
 2. Sette verdier fra `karakter1` til kolonne `rutiner_og_ledelse`, `karakter2` til `lokaler_og_utstyr`, `karakter3` til `mathandtering_og_tilberedning` og `karakter4` til `merking_og_sporbarhet`
 3. Omgjøre dato-strengen på formatet 'DDMMYYYY' til dato 
+4. Kjør en spørring som verifiserer at dataen ser korrekt ut.
 
 <details>
   <summary>🚨 Løsningsforslag</summary>
@@ -150,8 +151,6 @@ Det er et par ting med den opprinnelige rådataen som ikke passer vårt formål.
 
 </details>
 
-Kjør en spørring som verifiserer at dataen ser korrekt ut.
-
 
 ### Oppgave 2.3: Hent inn postnummer-data
 
@@ -161,8 +160,6 @@ Vi ønsker å gjøre akkurat det samme for `postnummer` som vi gjorde for tilsyn
 1. Initiere tabellen med riktige antall kolonner og typer
 2. Kopier fra stage-objekt til tabell
 3. Verifiser resultatet
-
-Gjør dette i Snowflake.  
 
 <details>
   <summary>🚨 Løsningsforslag</summary>
