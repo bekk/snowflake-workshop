@@ -2,12 +2,14 @@
 
 Velkommen til Snowflake-workshop! De neste to timene skal vi bryne oss på innhenting, transformering og plotting av [tilsynsdata](https://hotell.difi.no/?dataset=mattilsynet/smilefjes/tilsyn) fra Digitaliseringsdirektoratet. Dette er en vurdering av over 3500 restauranter i Norge på parametre som lokaler, mathåndtering, merking og lignende. Vårt mål er å ta i bruk geodata fra Kartverket for å visualisere hvilke kommuner i Norge som ikke har restaurantene sine helt på stell 😀 🤔 😩
 
+> **Tips 💡** Når vi jobber i en Snowflake Worksheet er det ikke nødvendig å slette cellene etter de er kjørt. Du kan heller markere de linjene du ønsker skal kjøre, så har du også historikken med deg til senere oppgaver.  
+
 ## DEL 1: Kobling mot Google Cloud Storage 💾
 
-Logg inn på [Snowflake](https://ae44471.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
+Logg inn på [Snowflake](https://so28625.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
 
 ### Oppgave 1.1: Lag database og skjema 
-Det første du må gjøre er å lage en egen database og skjema (datasett) på formatet `ditt_navn`_database/schema slik som i kodesnutten under. Bytt med ditt eget navn og kjør cellene i Snowflake. 
+Det første du må gjøre er å lage en egen database og et skjema (datasett) på formatet `ditt_navn`_database/schema slik som i kodesnutten under. Bytt med ditt eget navn og kjør cellene i Snowflake. 
 
 ```sql
 CREATE DATABASE ditt_navn_database; 
@@ -27,12 +29,12 @@ Nok snikksnakk, la oss hente data fra GCP!
 
 ### Oppgave 1.2: Last inn data fra GCS-bøtte 🪣
 
-Nå skal vi hente data fra `snowflake-ws-raw-data`-bøtta som ligger i [GCP](https://console.cloud.google.com/storage/browser?project=snowflake-workshop&prefix=&forceOnBucketsSortingFiltering=true). For å gjøre dette er vi nødt til å opprette en konfigurasjonsenhet som brukes for å integrere Snowflake med eksterne lagringstjenester (som Google Cloud Storage). Denne enheten kalles for `storage integration object` og oppretter blant annet en egen service account (maskinbruker) som vi kan gi tilgang til i bøtta vår. Kodesnutten under sier at vi ønsker å lage et eksternt volum i GCS som har tilgang til en gitt sti.
+Nå skal vi hente data fra `snowflake-ws-raw-data`-bøtta som ligger i [GCP](https://console.cloud.google.com/storage/browser?project=snowflake-workshop&prefix=&forceOnBucketsSortingFiltering=true). For å gjøre dette er vi nødt til å opprette en konfigurasjonsenhet som brukes for å integrere Snowflake med eksterne lagringstjenester (som Google Cloud Storage). Denne enheten kalles for `storage integration object` og oppretter blant annet en egen service account (maskinbruker) som vi kan gi tilgang til i bøtta vår. Kodesnutten under sier at vi ønsker å lage et eksternt volum i GCS som har tilgang til en gitt sti. 
 
-Bytt ut `<ditt_navn>` med ditt navn (💡) og kjør den i fila di:
+> **NB:** Det går bare an å sette opp én integrasjon per bøtte. Denne er allerede satt opp for dere, så dere trenger ikke kjøre kodesnutten under!
 
 ```sql
-CREATE STORAGE INTEGRATION <ditt_navn>_gcp_integration
+CREATE STORAGE INTEGRATION august_gcp_integration
     type = external_stage
     storage_provider = GCS 
     enabled = true 
@@ -42,10 +44,10 @@ CREATE STORAGE INTEGRATION <ditt_navn>_gcp_integration
 Nå kan vi hente ut den genererte maskinbrukeren ved å kjøre:
 
 ```sql
-DESC STORAGE INTEGRATION <ditt_navn>_gcp_integration;
+DESC STORAGE INTEGRATION august_gcp_integration;
 ```
 
-Kopier navnet på `STORAGE_GCP_SERVICE_ACCOUNT`, naviger deg til [**Permissions**](https://console.cloud.google.com/storage/browser/snowflake-ws-raw-data;tab=permissions?forceOnBucketsSortingFiltering=true&project=snowflake-workshop&prefix=&forceOnObjectsSortingFiltering=false)-fanen i bøtta og gi maskinbrukeren rettigheten `Storage Admin`.
+Her ser vi at vi har fått en maskinbruker, `STORAGE_GCP_SERVICE_ACCOUNT`, som vi kan gi tilgang til i bøtta. Dette er også allerede gjort, men du kan verifisere det ved å navigere deg til [**Permissions**](https://console.cloud.google.com/storage/browser/snowflake-ws-raw-data;tab=permissions?forceOnBucketsSortingFiltering=true&project=snowflake-workshop&prefix=&forceOnObjectsSortingFiltering=false)-fanen i bøtta og se at maskinbrukeren har rettigheten `Storage Admin`.
 
 Så lett var det - nå har vi muligheten til å autentisere oss mot bøtta og hente ut dataen 🚀
 
@@ -55,7 +57,7 @@ Det siste vi trenger å lage for å hente data er et `stage object`. Dette er et
 
 ```sql
 CREATE STAGE gcp_data
-    storage_integration = <ditt_navn>_gcp_integration
+    storage_integration = august_gcp_integration
     url = 'gcs://snowflake-ws-raw-data/';
 ```
 
@@ -65,13 +67,14 @@ Verifiser at dette funket ved å kjøre `list @gcp_data;`. Får du opp fire file
 ## DEL 2: Hent CSV-data for tilsyn og postnummer 📫
 
 ### Oppgave 2.1: Kopier data fra stage til tabell
-Nå skal vi gjøre oss klare for å laste inn data. Først er vi nødt til å lage et fil-format som matcher CSV-formatet. Hvis vi åpner `postnummer.csv` og `tilsyn.csv` i bøtta vår ser vi at vi har én header med semikolon-separerte verdier. Dette må vi ta høyde for, slik som i kodesnutten under:
+Nå skal vi gjøre oss klare for å laste inn data. Først er vi nødt til å lage et fil-format som matcher CSV-formatet. 
+Åpne `postnummer.csv` og `tilsyn.csv` i [bøtta](https://console.cloud.google.com/storage/browser/snowflake-ws-raw-data;tab=objects?forceOnBucketsSortingFiltering=true&project=snowflake-workshop&prefix=&forceOnObjectsSortingFiltering=false) for å se hvilke verdier du må erstatte i kodesnutten under: 
 
 ```sql
 CREATE FILE FORMAT csv_format
     type = csv 
-    field_delimiter = ';'
-    skip_header = 1;
+    field_delimiter = <sett_inn_separasjonstegn>
+    skip_header = <sett_inn_antall_rader_som_må_hoppes_over>;
 ```
 
 I tillegg må vi initiere tabellen vår, `tilsyn`, med riktig antall kolonner og type. Dette er en døll prosess å gjøre for hånd (ChatGPT fikset det for meg), så bare kopier og kjør snutten under:
@@ -115,6 +118,8 @@ file_format=csv_format
 on_error=continue;
 ```
 
+Når snutten er ferdigkjørt kan vi se at det var seks rader som var feilformatert. Det bryr vi oss ikke så mye om i denne workshopen. 
+
 Kjør en spørring på tabellen for å sjekke at dataen er korrekt lastet inn. 
 
 ### Oppgave 2.2: Transformer tilsynstabellen
@@ -145,7 +150,7 @@ Det er et par ting med den opprinnelige rådataen som ikke passer vårt formål.
 
 </details>
 
-Kjør en spørring som verifiserer at dataen ser korrekt ut
+Kjør en spørring som verifiserer at dataen ser korrekt ut.
 
 
 ### Oppgave 2.3: Hent inn postnummer-data
@@ -207,7 +212,7 @@ Ta en titt på tabellen vi nå har opprettet. Her er vi nødt til å nøste opp 
 
 ### Oppgave 3.2: Pakk ut JSON-data
 
-La oss starte med å pakke ut dataen slik at vi får én kommune per rad. Vi bruker en noe mystisk funksjon, LATERAL FLATTEN, for å pakke ut features-objektet. Det er den mest effektive måte å pakke ut nøstede arrays i en JSON-kolonne, slik vi har her:
+La oss starte med å pakke ut dataen slik at vi får én kommune per rad. Vi bruker en noe mystisk funksjon, `LATERAL FLATTEN`, for å pakke ut features-objektet. Det er den mest effektive måte å pakke ut nøstede arrays i en JSON-kolonne, slik vi har her:
 
 ```sql
 CREATE TABLE kommuner_unwrapped as 
@@ -220,7 +225,7 @@ Se på den nye tabellen vår. Nå har vi i alle fall én rad per feature (kommun
 
 I Snowflake aksesserer du JSON-objekter med kolon, `:`. Hvis du for eksempel har `{"key": "value"}` i en kolonne, `json_column`, så kan du hente ut verdien med `json_column:key::<TYPE>`, der `TYPE` er typen du ønsker å konvertere til (eksempelvis `STRING`). For nøstede objekter kan du bare fortsette med den samme annotasjonen (eksempelvis `{ "outer": { "inner": "value" } }` blir `json_column:outer:inner::<TYPE>`). 
 
-Det vi trenger fra kommuner er kommunenavn, kommunenummer og geometri slik at vi kan slå det sammen med de andre tabellene og plotte tilsynskarakterene i et kart per kommune. Vi ønsker i samme slengen å transformere geometry-objektet til binær-format, og det kan du gjøre ved å bruke ST_ASWKB(TRY_TO_GEOMETRY(feature:geometry)). Prøv deg på transformasjonen selv!
+Det vi trenger fra kommuner er kommunenavn, kommunenummer og geometri slik at vi kan slå det sammen med de andre tabellene og plotte tilsynskarakterene i et kart per kommune. Vi ønsker i samme slengen å transformere geometry-objektet til binær-format, og det kan du gjøre ved å bruke `ST_ASWKB(TRY_TO_GEOMETRY(feature:geometry))`. Prøv deg på transformasjonen selv!
 
 <details>
   <summary>🚨 Løsningsforslag</summary>
@@ -236,9 +241,22 @@ CREATE TABLE kommuner_transformert as
   
 </details>
 
+### Oppgave 3.3: Slå sammen datasettene
 
-Nå har vi all dataen vi trenger på formatet vi ønsker! Det siste vi da må gjøre er å slå sammen datasettene. Kodesnutten under slår først sammen tilsyn med kommuner, før vi deretter slår sammen resultatet fra spørringen med kommune-dataen:
+Nå har vi all dataen vi trenger på formatet vi ønsker! Det siste vi da må gjøre er å slå sammen datasettene. 
+Som nevnt tidligere trenger vi postnummer-tabellen til å knytte tilsynsdata og kommuner sammen. For å oppnå målet vårt trenger vi følgende kolonner: 
 
+1. `navn`, `dato` og `total_karakter` fra `tilsyn_transformert`-tabellen
+2. `postnummer` og `poststed` fra `postnummer`-tabellen
+3. `geometry` fra `kommuner_transformert`-tabellen
+
+Gjør et forsøk selv!
+
+> **Tips 💡** Dette kan fort bli en lang spørring, så det kan være lurt å dele opp joins i hver sin delspørring ved bruk av `WITH <navn_på_delspørring> AS ...` og deretter bruke `<navn_på_delspørring>` i neste join. Du kan lese mer om `WITH`-clauses [her](https://www.geeksforgeeks.org/sql-with-clause/).
+
+<details>
+  <summary>🚨 Løsningsforslag</summary>
+    
 ```sql
 CREATE TABLE tilsyn_med_kommune as (
   WITH tilsyn_med_postnummer as (
@@ -263,6 +281,9 @@ CREATE TABLE tilsyn_med_kommune as (
   ON k.kommunenummer = t.kommunenummer
 );
 ```
+
+</details>
+
 
 Ta en titt på dataen nå. Nå har vi egentlig all data vi trenger til å plotte tilgjengelig!
 
@@ -292,18 +313,24 @@ Kjør en `SELECT` på den nye tabellen din og naviger deg til høyre kolonne i r
 
 
 ### Oppgave 4.2: Plott tilsynskarakter per kommune 
-Nå skal vi ta i bruk dataene vi har laget via en snowflake-connector. En connector lar deg koble til Snowflake utenfor plattformen via f.eks en Python-applikasjon. Vi har allerede laget et Python-script for å visualisere dataene i `tilsynskarakter_per_kommune`-tabellen. Scriptet konverterer geometrikolonnen tilbake til GeoJSON fra binærformat. Dette må til for å kunne visualisere dataene i rammeverket `Folium`. 
+Nå skal vi ta i bruk dataene vi har laget via en snowflake-connector. En connector lar deg koble til Snowflake utenfor plattformen via f.eks en Python-applikasjon. Vi har allerede laget et Python-script for å visualisere dataene i `tilsynskarakter_per_kommune`-tabellen. Scriptet konverterer geometrikolonnen tilbake til GeoJSON fra binærformat. Dette må til for å kunne visualisere dataene i rammeverket `Folium`. Slik gjør du det:
 
-For å kunne kjøre scriptet må du først klone repoet
+1. For å kunne kjøre scriptet må du først klone repoet
 ```sh
 git clone git@github.com:bekk/snowflake-workshop.git
 ```
 
-Deretter må du installere avhengighetene som trengs. Dette gjør du ved å navigere deg inn i `/visualisering` og kjøre
+2. Av erfaring varierer Python noe fra maskin til maskin, så jeg anbefaler at dere lager et _virtual environment_ i repoet du nettopp klonet:
+```sh
+python3 -m venv .venv && source .venv/bin/activate
+```
+
+3. Deretter må du installere avhengighetene som trengs. Dette gjør du ved å navigere deg inn i `/visualisering` og kjøre
 ```sh
 pip install -r requirements.txt
 ```
-Etter å ha installert avhengighetene må du sette inn de nødvendige parameterene i main.py. Finn frem brukernavnet, passordet, database- og skjema-navnet. Fyll disse inn i `connector.connect`-funksjonen.
+
+4. Etter å ha installert avhengighetene må du sette inn de nødvendige parameterene i `main.py`. Finn frem brukernavnet, passordet, database- og skjema-navnet. Fyll disse inn i `connector.connect`-funksjonen.
 
 Når parametererne er ferdig utfylt kjører du følgende kommando i `/visualisering`-mappen
 
@@ -312,3 +339,5 @@ python main.py
 ```
 
 Etter kommandoen er ferdigkjørt vil det bli laget en fil `map.html`. Åpne opp filen i en nettleser og du vil se dataene dine plottet på et kart.
+
+Gratulerer - nå kan du vite hvilke kommuner du bør - og absolutt _ikke_ bør - besøke om du er på jakt etter en kulinarisk opplevelse 🍔
