@@ -6,7 +6,7 @@ Velkommen til Snowflake-workshop! De neste to timene skal vi bryne oss på innhe
 
 ## DEL 1: Kobling mot Google Cloud Storage 💾
 
-Logg inn på [Snowflake](https://so28625.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
+Logg inn i [Snowflake](https://so28625.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
 
 ### Oppgave 1.1: Lag database og skjema 
 Det første du må gjøre er å lage en egen database og et skjema (datasett) på formatet `ditt_navn`_database/schema slik som i kodesnutten under. Bytt med ditt eget navn og kjør cellene i Snowflake. 
