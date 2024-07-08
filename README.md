@@ -120,7 +120,7 @@ Kjør en spørring på tabellen for å sjekke at dataen er korrekt lastet inn.
 ### Oppgave 2.2: Transformer tilsynstabellen
 
 Det er et par ting med den opprinnelige rådataen som ikke passer vårt formål. Lag derfor en spørring og skriv den til en ny tabell, `tilsyn_transformert`, som inneholder følgende:
-1. `navn, orgnummer, postnr, poststed, totalkarakter`-kolonnene på vanlig format
+1. `navn, orgnummer, postnr, poststed, total_karakter`-kolonnene på vanlig format
 2. Sette verdier fra `karakter1` til kolonne `rutiner_og_ledelse`, `karakter2` til `lokaler_og_utstyr`, `karakter3` til `mathandtering_og_tilberedning` og `karakter4` til `merking_og_sporbarhet`
 3. Omgjøre dato-strengen på formatet 'DDMMYYYY' til dato 
 
