@@ -1,6 +1,6 @@
 # Workshop: Introduksjon til Snowflake ❄️
 
-Velkommen til Snowflake-workshop! De neste to timene skal vi bryne oss på innhenting, transformering og plotting av [tilsynsdata](https://hotell.difi.no/?dataset=mattilsynet/smilefjes/tilsyn) fra Digitaliseringsdirektoratet. Dette er en vurdering av over 3500 restauranter i Norge på parametre som lokaler, mathåndtering, merking og lignende. Vårt mål er å ta i bruk geodata fra Kartverket for å visualisere hvilke kommuner i Norge som ikke har restaurantene sine helt på stell 😀 🤔 😩
+Velkommen til Snowflake-workshop! De neste to timene skal vi bryne oss på innhenting, transformering og plotting av [tilsynsdata](https://hotell.difi.no/?dataset=mattilsynet/smilefjes/tilsyn) fra Digitaliseringsdirektoratet. Dette er en vurdering av over 3500 restauranter i Norge på parametre som lokaler, mathåndtering, merking og lignende. Vårt mål er å ta i bruk geodata fra Kartverket for å visualisere hvilke kommuner i Norge som har - og eventuelt _ikke_ har - restaurantene sine helt på stell 😀 🤔 😩
 
 > **Tips 💡** Når vi jobber i en Snowflake Worksheet er det ikke nødvendig å slette cellene etter de er kjørt. Du kan heller markere de linjene du ønsker skal kjøre, så har du også historikken med deg til senere oppgaver.  
 
