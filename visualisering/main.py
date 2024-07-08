@@ -6,7 +6,7 @@ from map_utils import generate_map
 conn = connector.connect(
     user="<<snowflake_brukernavn>>",
     password="<<snowflake_passord>>",
-    account="ae44471.europe-west4.gcp",
+    account="so28625.europe-west4.gcp",
     warehouse="COMPUTE_WH",
     database="<<din_database>>",
     schema="<<ditt_schema>>"
