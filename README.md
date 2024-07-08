@@ -2,11 +2,11 @@
 
 Velkommen til Snowflake-workshop! De neste to timene skal vi bryne oss på innhenting, transformering og plotting av [tilsynsdata](https://hotell.difi.no/?dataset=mattilsynet/smilefjes/tilsyn) fra Digitaliseringsdirektoratet. Dette er en vurdering av over 3500 restauranter i Norge på parametre som lokaler, mathåndtering, merking og lignende. Vårt mål er å ta i bruk geodata fra Kartverket for å visualisere hvilke kommuner i Norge som har - og eventuelt _ikke_ har - restaurantene sine helt på stell 😀 🤔 😩
 
-> **Tips 💡** Når vi jobber i en Snowflake Worksheet er det ikke nødvendig å slette cellene etter de er kjørt. Du kan heller markere de linjene du ønsker skal kjøre, så har du også historikken med deg til senere oppgaver.  
-
 ## DEL 1: Kobling mot Google Cloud Storage 💾
 
 Logg inn i [Snowflake](https://so28625.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
+
+> **Tips 💡** Når vi jobber i en Snowflake Worksheet er det ikke nødvendig å slette cellene etter de er kjørt. Du kan heller markere de linjene du ønsker skal kjøre, så har du også historikken med deg til senere oppgaver.  
 
 ### Oppgave 1.1: Lag database og skjema 
 Det første du må gjøre er å lage en egen database og et skjema (datasett) på formatet `ditt_navn`_database/schema slik som i kodesnutten under. Bytt med ditt eget navn og kjør cellene i Snowflake. 
