@@ -16,7 +16,7 @@ CREATE DATABASE ditt_navn_database;
 CREATE SCHEMA ditt_navn_schema;
 ```
 
-Naviger deg til **Database** i panelet til venstre og kjør refresh. Nå vil du forhåpentligvis se at din nye tabell og skjema er opprettet.
+Naviger deg til **Database** i panelet til venstre og kjør refresh. Nå vil du forhåpentligvis se at din nye database og skjema er opprettet.
 
 <img src=https://github.com/bekk/snowflake-workshop/assets/29883261/6f4f1fac-94f7-43f5-94c0-6bd47b4e4a25 width=250 />
 
