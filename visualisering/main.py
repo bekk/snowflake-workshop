@@ -6,10 +6,10 @@ from map_utils import generate_map
 conn = connector.connect(
     user="<<snowflake_brukernavn>>",
     password="<<snowflake_passord>>",
-    account="so28625.europe-west4.gcp",
-    warehouse="COMPUTE_WH",
-    database="<<din_database>>",
-    schema="<<ditt_schema>>"
+    account="urcgqra-gu27095",
+    warehouse="<ditt_warehouse>",
+    database="<din_database>",
+    schema="<ditt_schem>"
 )
 
 def perform_snowflake_query(sql_query: str) -> pd.DataFrame:
@@ -17,8 +17,8 @@ def perform_snowflake_query(sql_query: str) -> pd.DataFrame:
         return cur.execute(sql_query).fetch_pandas_all()
 
 
-dataframe = perform_snowflake_query("""
-SELECT * EXCLUDE(GEOMETRY), ST_ASGEOJSON(ST_GEOMETRYFROMWKB(GEOMETRY)) AS GEOMETRY
+dataframe:pd.DataFrame = perform_snowflake_query("""
+SELECT * EXCLUDE(GEOMETRY), ST_ASGEOJSON(ST_TRANSFORM(ST_GEOMETRYFROMWKB(GEOMETRY, 25833), 4326)) AS GEOMETRY
 FROM TILSYNSKARAKTER_PER_KOMMUNE;
 """)
 

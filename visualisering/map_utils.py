@@ -19,11 +19,11 @@ def generate_map(df: pd.DataFrame) -> folium.Map:
 
     for _, row in df.iterrows():
         geo_json_dict = json.loads(row["GEOMETRY"])
-        geo_json_dict["properties"] = { "score": row["GJENNOMSNITTLIG_KARAKTER"] }
+        geo_json_dict["properties"] = { "score": 0 if row["GJENNOMSNITTLIG_KARAKTER"] == None else row["GJENNOMSNITTLIG_KARAKTER"]  }
         geo_json = folium.GeoJson(
             geo_json_dict,
             style_function=style_function,
-            tooltip=str(f'{row["KOMMUNENAVN"]} ({row["KOMMUNENUMMER"]}), Score={row["GJENNOMSNITTLIG_KARAKTER"]}')
+            tooltip=str(f'{row["KOMMUNENAVN"]} ({row["KOMMUNENUMMER"]}), Score={0 if row["GJENNOMSNITTLIG_KARAKTER"] == None else row["GJENNOMSNITTLIG_KARAKTER"]}')
         )
         geo_json.add_to(m)
 
