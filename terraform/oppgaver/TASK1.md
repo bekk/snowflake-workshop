@@ -18,6 +18,8 @@ provider "snowflake" {
   account_name      = "GU27095"
   user              = "<brukernavn>" # <--- Ditt brukernavn
   password          = "<passord>" # # <--- Ditt passord
+
+  role = "SECURITYADMIN"
 }
 
 provider "google" {

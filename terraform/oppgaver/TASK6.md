@@ -4,16 +4,6 @@
 ```hcl
 ...
 
-provider "snowflake" {
-  alias             = "dataproducer"
-  organization_name = "URCGQRA"
-  account_name      = "GU27095"
-  user              = "<brukernavn>" # <--- Ditt brukernavn
-  password          = "<passord>" # # <--- Ditt passord
-  role              = snowflake_account_role.role.name
-}
-```
-
 ## Fyll inn i storage_integration.tf
 ```hcl
 resource "google_storage_bucket" "snowflake_stage" {
@@ -22,7 +12,7 @@ resource "google_storage_bucket" "snowflake_stage" {
 }
 
 resource "snowflake_storage_integration" "integration" {
-  provider = snowflake.dataproducer
+  provider = snowflake.accountadmin
   name     = "<ditt integrasjonsnavn>" # <--- Fyll inn ditt integrasjonsnavn her
   comment  = "A GCS storage integration."
   type     = "EXTERNAL_STAGE"
