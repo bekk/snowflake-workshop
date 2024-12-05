@@ -1,6 +1,6 @@
 # Oppgave 6: Oppsett av storage integration (der man laster inn rådata)
 
-## Fyll inn i provider.tf
+## Fyll inn i providers.tf
 ```hcl
 ...
 
