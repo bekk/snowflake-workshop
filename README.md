@@ -340,3 +340,220 @@ python main.py
 Etter kommandoen er ferdigkjørt vil det bli laget en fil `map.html`. Åpne opp filen i en nettleser og du vil se dataene dine plottet på et kart.
 
 Gratulerer - nå kan du vite hvilke kommuner du bør - og absolutt _ikke_ bør - besøke om du er på jakt etter en kulinarisk opplevelse 🍔
+
+## DEL 5: Transformasjoner i dbt
+
+Frem til nå har vi kjørt transformasjonene våre manuelt i et worksheet. Dette er ikke særlig skalerbart når man jobber på prosjekt. Derfor ønsker vi å ta i bruk **dbt**!
+
+**dbt** (short for Data Build Tool) er et verktøy som lar deg skrive SQL-transformasjoner som kode, organisere dem i en strukturert pipeline, og deretter kjøre og dokumentere dem. Med dbt kan du definere hvordan rådata skal transformeres til analyseklar data ved å bruke SQL og enkle YAML-konfigurasjoner.
+
+Nå skal vi vise hvor lett det er å komme i gang med dbt etter man allerede har transformasjonene man trenger!
+
+### Oppgave 5.1: Sett opp dbt lokalt
+
+Naviger deg til roten av prosjektet og last ned `dbt` for Snowflake:
+
+```sh
+pip install dbt-snowflake
+```
+
+Deretter initierer du dbt-prosjektet:
+
+```sh
+dbt init tilsyn_<ditt_navn>
+```
+
+Nå vil en grunnstruktur for prosjektet bli opprettet for deg, inkludert mapper og filer som dbt trenger for å fungere. 
+
+Det siste du trenger å gjøre er å fylle ut variablene du blir promtet til. Disse variablene blir lagret i en konfigurasjonsfil, `profiles.yml`, som brukes til å definere hvordan dbt skal koble seg til databasen din i Snowflake. 
+Når du har lagt inn alle variablene kan du åpne filen (`~/.dbt/profiles.yml`). Da vil den se ca. slik ut:
+
+```sh
+tilsyn_<ditt_navn>:  # Dette må matche navnet i `dbt_project.yml`
+  target: dev        # Standard miljø som brukes
+  outputs:           # Ulike miljøer kan konfigureres her
+    dev:             # Dev-miljøet
+      type: snowflake
+      account: sc96841.europe-west4.gcp   # Snowflake-kontonavn (uten ".snowflakecomputing.com")
+      user: <din_bruker>                  # Snowflake-brukernavn
+      password: <ditt_passord>            # Snowflake-passord
+      role: ACCOUNTADMIN                  # Rollen som skal brukes 
+      database: <ditt_navn>_database      # Standard database
+      warehouse: COMPUTE_WH               # Snowflake warehouse
+      schema: <ditt_navn>_schema          # Standard skjema for miljøet
+      threads: 4                          # Antall tråder som dbt kan bruke
+```
+
+Naviger deg til dbt-mappen (`tilsyn_<ditt_navn>`) og test forbindelsen med `dbt debug`.
+
+### Oppgave 5.2: Konfigurer prosjektet 
+
+Nå må vi oppdatere prosjektets konfigurasjonsfil, `dbt_project.yml`, for å definere hvordan dbt skal håndtere modeller, mapper, og hvilke skjemaer de ulike modellene skal lagres i.
+Det eneste du trenger å endre her er modellene:
+
+```sh
+models:
+  tilsyn_project:      # Modeller i prosjektet
+    staging:
+      +schema: staging  # Bruker skjemaet "staging" for disse modellene
+      +materialized: view  # Disse modellene blir lagret som views
+    transformations:
+      +schema: transformations
+      +materialized: table  # Modellene her blir lagret som tabeller
+    final:
+      +schema: final
+      +materialized: table
+```
+
+Dette forteller dbt hvilke mapper som inneholder hvilke typer modeller, og hvilke skjemaer de skal lagres i. Her har vi satt opp tre nivåer for dataen vår:
+
+- **staging**: Rådata fra med minimale mengder transformasjoner på dataen.
+- **transformations**: Transformasjoner fra rådata til tabeller som fortsatt ikke er aggregert.
+- **final**: Vårt finaliserte "gull"-datasett som inneholder ferdigknadd data.
+
+
+### Oppgave 5.3: Konfigurer modellene
+
+Vi ønsker å strukturere modellene i mapper på samme måte som vi definerte de i prosjektkonfigurasjonen. Slett eksempel-mappen og lag tre nye:
+
+```sh
+mkdir -p models/staging models/transformations models/final
+```
+
+Det siste vi trenger er å lage en fil for kildedataen vår under `models/sources.yml`. Dette gjør det enkelt å referere til kildedataene i modellene våre:
+
+```sh
+version: 2
+sources:
+  - name: raw
+    schema: <ditt_navn>_schema
+    tables:
+      - name: tilsyn
+      - name: postnummer
+      - name: kommuner
+```
+
+Her tar vi utgangspunkt i de innlastede rådataene vi hentet i tidligere oppgaver, men det kunne like greit vært en kobling direkte mot staging-objektet vårt `gcp_data`. 
+
+### Oppgave 5.4: Lag modellene
+
+Endelig er vi klare til å definere modellene våre! Ta utgangspunkt i koden du skrev og lag tilsvarende tabeller i dbt. Det vil altså si:
+
+**staging**: `tilsyn`, `postnummer` og `kommuner`
+
+**transformations**: `kommuner_transformert`, `tilsyn_transformert` og `tilsyn_med_kommune`
+
+**final**: `tilsynskarakterer_per_kommune`
+
+Merk at tabellene får samme navn som filnavnet du bruker (eksempelvis `stg_tilsyn.sql` blir tabellen `stg_tilsyn` i Snowflake).
+
+Noen tips før du starter:
+
+> - _source_ brukes til å referere til rådata som er definert som kilder i dbt-prosjektet, altså de vi allerede har definert i `sources.yml`. Du refererer til kildetabellene med `{{ source('source_name','source_table') }}`
+> - _ref_ brukes til å referere til andre dbt-modeller i prosjektet. Når du bruker ref, sikrer dbt at avhengigheter mellom modellene håndteres korrekt, slik at modellene kjøres i riktig rekkefølge. Du bruker disse referansene ved `{{ ref( 'model_name' }}`
+
+<details>
+  <summary>🚨 Løsningsforslag</summary>
+
+Under `models/staging`:
+
+```sql
+# stg_tilsyn.sql
+select * from {{ source('raw', 'tilsyn') }}
+```
+
+```sql
+# stg_postnummer.sql
+select * from {{ source('raw', 'postnummer') }}
+```
+
+```sql
+# stg_kommuner.sql
+select * from {{ source('raw', 'kommuner') }}
+```
+
+Under `models/transformation`:
+
+```sql
+# tilsyn_transformert.sql
+select 
+    navn, 
+    orgnummer,
+    postnr,
+    poststed,
+    total_karakter,
+    karakter1 as rutiner_og_ledelse,
+    karakter2 as lokaler_og_utstyr,
+    karakter3 as mathandtering_og_tilberedning,
+    karakter4 as merking_og_sporbarhet,
+    to_date(dato, 'DDMMYYYY') as dato
+from {{ ref('stg_tilsyn') }}
+```
+
+```sql
+# kommuner_transformert.sql
+select 
+    feature:properties:kommunenavn::string as kommunenavn,
+    feature:properties:kommunenummer::int as kommunenummer,
+    st_aswkb(try_to_geometry(feature:geometry)) as geometry
+from {{ ref('stg_kommuner') }}
+```
+
+```sql
+# tilsyn_med_kommune.sql
+with tilsyn_med_postnummer as (
+    select 
+        t.navn,
+        t.dato,
+        t.total_karakter,
+        p.postnummer,
+        p.poststed,
+        p.kommunenummer
+    from {{ ref('tilsyn_transformert') }} as t 
+    join {{ ref('stg_postnummer') }} as p
+    on t.postnr = p.postnummer        
+)
+select 
+    tp.navn,
+    tp.dato,
+    tp.total_karakter,
+    k.kommunenavn,
+    k.kommunenummer,
+    k.geometry
+from tilsyn_med_postnummer as tp 
+left join {{ ref('kommuner_transformert') }} as k 
+on k.kommunenummer = tp.kommunenummer
+```
+
+Under `models/final`:
+
+```sql
+select 
+    kommunenavn, 
+    round(avg(total_karakter), 3) as gjennomsnittlig_karakter,
+    geometry
+from {{ ref('tilsyn_med_kommune') }}
+group by kommunenavn, geometry
+```
+
+</details>
+
+
+### Oppgave 5.5: Se det ferdige resultatet via dbt docs
+
+Det siste vi nå skal gjøre er å se det endelige resultatet ved å kjøre:
+
+```sh
+dbt docs generate
+dbt docs serve
+```
+
+Trykk på lenken som blir generert og naviger deg ned til ikonet i høyre hjørnet. Da kan du se hele dataflyten vår visuelt:
+
+![Skjermbilde 2025-01-27 kl  16 49 43](https://github.com/user-attachments/assets/61cdf0bd-27a3-4afe-aa29-c990bd734511) 
+
+
+Voilà! Ved hjelp av dbt har vi nå fått transformasjonene våre inn i kode 🎉 Ikke bare det; vi har også _mye_ bedre kontroll på hvor dataen vår stammer fra, og hvilke transformasjoner som er gjort underveis.
+
+dbt er et kraftig verktøy som lar deg gjøre utrolig mange ting vi ikke rekker å gå gjennom i denne workshopen. Lek deg gjerne med flere dbt features hvis du har tid! 
+
