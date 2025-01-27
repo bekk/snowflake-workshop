@@ -4,7 +4,7 @@ Velkommen til Snowflake-workshop! De neste to timene skal vi bryne oss på innhe
 
 ## DEL 1: Kobling mot Google Cloud Storage 💾
 
-Logg inn i [Snowflake](https://so28625.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
+Logg inn i [Snowflake](https://sc96841.europe-west4.gcp.snowflakecomputing.com/console/login#/) med brukernavn og passord du har blitt tildelt og naviger deg til **Projects -> Worksheets** og lag et nytt worksheet i høyre hjørne. Nå er du klar til å utvikle i ditt eget arbeidsområde!
 
 > **Tips 💡** Når vi jobber i en Snowflake Worksheet er det ikke nødvendig å slette cellene etter de er kjørt. Du kan heller markere de linjene du ønsker skal kjøre, så har du også historikken med deg til senere oppgaver.  
 
