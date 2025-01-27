@@ -340,3 +340,9 @@ python main.py
 Etter kommandoen er ferdigkjørt vil det bli laget en fil `map.html`. Åpne opp filen i en nettleser og du vil se dataene dine plottet på et kart.
 
 Gratulerer - nå kan du vite hvilke kommuner du bør - og absolutt _ikke_ bør - besøke om du er på jakt etter en kulinarisk opplevelse 🍔
+
+## DEL 5: Transformasjoner i dbt
+
+Frem til nå har vi kjørt transformasjonene våre manuelt i et worksheet. Dette er ikke særlig skalerbart når man jobber på prosjekt. Derfor ønsker vi å ta i bruk **dbt**!
+
+**dbt** (data build tool)
