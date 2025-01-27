@@ -220,12 +220,15 @@ CREATE TABLE kommuner_unwrapped as
 
 Se på den nye tabellen vår. Nå har vi i alle fall én rad per feature (kommuner med data), men vi ønsker å pakke ut dataen enda mer fra JSON-formatet til kolonner. 
 
-I Snowflake aksesserer du JSON-objekter med kolon, `:`. Hvis du for eksempel har `{"key": "value"}` i en kolonne, `json_column`, så kan du hente ut verdien med `json_column:key::<TYPE>`, der `TYPE` er typen du ønsker å konvertere til (eksempelvis `STRING`). For nøstede objekter kan du bare fortsette med den samme annotasjonen (eksempelvis `{ "outer": { "inner": "value" } }` blir `json_column:outer:inner::<TYPE>`). 
+Det vi trenger fra kommuner er kommunenavn, kommunenummer og geometri slik at vi kan slå det sammen med de andre tabellene og plotte tilsynskarakterene i et kart per kommune. Vi ønsker i samme slengen å transformere geometry-objektet til binær-format, og det kan du gjøre ved å bruke `ST_ASWKB(TRY_TO_GEOMETRY(feature:geometry))`. 
 
-Det vi trenger fra kommuner er kommunenavn, kommunenummer og geometri slik at vi kan slå det sammen med de andre tabellene og plotte tilsynskarakterene i et kart per kommune. Vi ønsker i samme slengen å transformere geometry-objektet til binær-format, og det kan du gjøre ved å bruke `ST_ASWKB(TRY_TO_GEOMETRY(feature:geometry))`. Prøv deg på transformasjonen selv!
+Finn ut av hvordan vi kan få transformert JSON-objektet til de ønskede kolonnene og prøv selv!
 
 <details>
   <summary>🚨 Løsningsforslag</summary>
+
+
+  I Snowflake aksesserer du JSON-objekter med kolon, `:`. Hvis du for eksempel har `{"key": "value"}` i en kolonne, `json_column`, så kan du hente ut verdien med `json_column:key::<TYPE>`, der `TYPE` er typen du ønsker å konvertere til (eksempelvis `STRING`). For nøstede objekter kan du bare fortsette med den samme annotasjonen (eksempelvis `{ "outer": { "inner": "value" } }` blir `json_column:outer:inner::<TYPE>`). 
 
 ```sql
 CREATE TABLE kommuner_transformert as
@@ -244,8 +247,7 @@ Nå har vi all dataen vi trenger på formatet vi ønsker! Det siste vi da må gj
 Som nevnt tidligere trenger vi postnummer-tabellen til å knytte tilsynsdata og kommuner sammen. For å oppnå målet vårt trenger vi følgende kolonner: 
 
 1. `navn`, `dato` og `total_karakter` fra `tilsyn_transformert`-tabellen
-2. `postnummer` og `poststed` fra `postnummer`-tabellen
-3. `geometry` fra `kommuner_transformert`-tabellen
+3. `kommunenavn`, `kommunenummer` og `geometry` fra `kommuner_transformert`-tabellen
 
 Gjør et forsøk selv!
 
@@ -288,7 +290,7 @@ Ta en titt på dataen nå. Nå har vi egentlig all data vi trenger til å plotte
 
 ### Oppgave 4.1: Karaktersnitt per kommune
 
-Tabellen vår `tilsyn_med_kommune` har nå én rad per tilsyn. Det vi nå trenger å gjøre er å gruppere dataen slik at vi har en gjennomsnittskarakter på hver kommune. Lag en spørring som tar med `kommunenavn, kommunenummer, geometry`, og gjennomsnittskarakteren av `total_karakter` (avrundet med tre desimaler). Kall den nye tabellen `tilsynskarakter_per_kommune`. 
+Tabellen vår `tilsyn_med_kommune` har nå én rad per tilsyn. Det vi nå trenger å gjøre er å gruppere dataen slik at vi har en gjennomsnittskarakter på hver kommune. Lag en spørring som tar med `kommunenavn`, `geometry`, og gjennomsnittskarakteren av `total_karakter` (avrundet med tre desimaler). Kall den nye tabellen `tilsynskarakter_per_kommune`. 
 
 <details>
   <summary>🚨 Løsningsforslag</summary>
