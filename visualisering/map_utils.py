@@ -23,7 +23,7 @@ def generate_map(df: pd.DataFrame) -> folium.Map:
         geo_json = folium.GeoJson(
             geo_json_dict,
             style_function=style_function,
-            tooltip=str(f'{row["KOMMUNENAVN"]} ({row["KOMMUNENUMMER"]}), Score={row["GJENNOMSNITTLIG_KARAKTER"]}')
+            tooltip=str(f'{row["KOMMUNENAVN"]}, Score={row["GJENNOMSNITTLIG_KARAKTER"]}')
         )
         geo_json.add_to(m)
 
